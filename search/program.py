@@ -3,6 +3,9 @@
 
 from utils import render_board
 from constants import *
+from classes import *
+import heapq as hq
+from heuristic import heuristic
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
@@ -14,19 +17,19 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 
     See the specification document for more details.
     """
+    # for ((r, q), (p, k)) in input.items():
+    #     if p == 'r':
+    #         spread(input, Move(5, 6, 0, 1))
+    #         break
+    nodes = []
 
-    # The render_board function is useful for debugging -- it will print out a 
-    # board state in a human-readable format. Try changing the ansi argument 
-    # to True to see a colour-coded version (if your terminal supports it).
-    for ((r, q), (p, k)) in input.items():
-        if p == 'r':
-            spread(input, (5, 6, 1, 0))
-            break
+    root = Node(None, input, None, 0, heuristic(input))
+    expand(nodes, root)
 
-    print(render_board(input, ansi=False))
+    print(nodes)
 
-    # Here we're returning "hardcoded" actions for the given test.csv file.
-    # Of course, you'll need to replace this with an actual solution...
+    print(render_board(input, ansi=True))
+
     return [
         (5, 6, -1, 1),
         (3, 1, 0, 1),
@@ -36,7 +39,27 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     ]
 
 
-def spread(input: dict[tuple, tuple], move: tuple) -> dict[tuple, tuple]:
+def expand(nodes: list, parent: Node):
+    reds = []
+    # find the red keys
+    [reds.append(key) for key in parent.state if parent.state[key][COLOUR] == RED]
+
+    # iterate through each red in every direction
+    for red in reds:
+        for direction in DIRECTIONS:
+            move_coords = Move(*(red + direction))
+            new_state = spread(parent.state, move_coords)
+
+            next_move_num = parent.move_num + 1
+            # create new child node and add to PQ
+            node = Node(parent, new_state, move_coords, next_move_num, heuristic(new_state))
+            hq.heappush(nodes, node)
+
+    # print out each node
+    print([x.__str__() for x in nodes])
+
+
+def spread(input: dict[tuple, tuple], move: Move) -> dict[tuple, tuple]:
     """
     The spread function takes an input state as well as a move in the form of a
     tuple (r, q, dr, dq). (r, q) represents the current position of the piece
@@ -47,9 +70,9 @@ def spread(input: dict[tuple, tuple], move: tuple) -> dict[tuple, tuple]:
     The spread function will update the state to include the successful spread
     move.
     """
-    (r, q, dr, dq) = move
+    (r, q, dr, dq) = move.unpack()
 
-    output = input
+    output = input.copy()
 
     if (r, q) not in output.keys():
         raise Exception("Piece doesn't exist")
@@ -61,17 +84,16 @@ def spread(input: dict[tuple, tuple], move: tuple) -> dict[tuple, tuple]:
     # Remove current piece from state
     del output[(r, q)]
 
-    (pos_r, pos_q) = (r, q)
+    (cur_r, cur_q) = (r, q)
     for i in range(k):
-        (pos_r, pos_q) = ((pos_r + dr) % BOARD_LEN, (pos_q + dq) % BOARD_LEN)
-        if (pos_r, pos_q) in input.keys():
-            if output[(pos_r, pos_q)][POWER] == 6:
-                del output[(pos_r, pos_q)]
+        (cur_r, cur_q) = ((cur_r + dr) % BOARD_LEN, (cur_q + dq) % BOARD_LEN)
+        if (cur_r, cur_q) in input.keys():
+            if output[(cur_r, cur_q)][POWER] == MAX_POWER:
+                del output[(cur_r, cur_q)]
                 continue
             else:
-                output[(pos_r, pos_q)][COLOUR] = RED
-                output[(pos_r, pos_q)][POWER] += 1
+                output[(cur_r, cur_q)] = (RED, output[(cur_r, cur_q)][POWER] + 1)
         else:
-            output[(pos_r, pos_q)] = ('r', 1)
+            output[(cur_r, cur_q)] = (RED, 1)
 
     return output

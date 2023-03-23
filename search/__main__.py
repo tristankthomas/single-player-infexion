@@ -31,7 +31,12 @@ def main():
     """
     Main entry point for program.
     """
-    input = parse_input(stdin.read())
+    # used for testing
+    f = open("..\\test.csv", "r")
+    input = parse_input(f.read())
+    f.close()
+
+    # input = parse_input(stdin.read())
     sequence: list[tuple] = search(input)
     print_sequence(sequence)
 

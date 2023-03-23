@@ -17,16 +17,20 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 
     See the specification document for more details.
     """
-    # for ((r, q), (p, k)) in input.items():
-    #     if p == 'r':
-    #         spread(input, Move(5, 6, 0, 1))
-    #         break
+
     nodes = []
 
     root = Node(None, input, None, 0, heuristic(input))
-    expand(nodes, root)
+    spread(root.state, Move(5, 6, 0, 1))
+    hq.heappush(nodes, root)
 
-    print(nodes)
+    while bool(nodes):
+        node = hq.heappop(nodes)
+        expand(nodes, node)
+        print(render_board(node.state, ansi=True))
+        if goal_test(node):
+            solution = node
+            break
 
     print(render_board(input, ansi=True))
 
@@ -55,8 +59,9 @@ def expand(nodes: list, parent: Node):
             node = Node(parent, new_state, move_coords, next_move_num, heuristic(new_state))
             hq.heappush(nodes, node)
 
-    # print out each node
-    print([x.__str__() for x in nodes])
+
+def goal_test(node: Node):
+    return not bool([key for key in node.state if node.state[key][COLOUR] == BLUE])
 
 
 def spread(input: dict[tuple, tuple], move: Move) -> dict[tuple, tuple]:

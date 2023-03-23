@@ -14,7 +14,7 @@ BOARD_LEN = 7
 MAX_POWER = 6
 
 # Possible directions
-DIRECTIONS = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (-1, 1)]
+DIRECTIONS = ((0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (-1, 1))
 
 # Possible colours
 RED = 'r'

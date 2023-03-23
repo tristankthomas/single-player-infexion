@@ -19,27 +19,30 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
 
     nodes = []
+    visited = set()
     moves = []
 
     root = Node(None, input, None, 0, heuristic(input))
+
     spread(root.state, Move(5, 6, 0, 1))
     hq.heappush(nodes, root)
 
     # A* algorithm
-    while bool(nodes):
+    while nodes:
         node = hq.heappop(nodes)
-        expand(nodes, node)
-        print(render_board(node.state, ansi=True))
+        # checks if seen state before
+        if node not in visited:
+            expand(nodes, node)
+            visited.add(node)
+
         if goal_test(node):
             solution = node
+            # finding moves to goal state
             get_moves(solution, moves)
+
             break
 
-    # finding moves to goal state
-
-    print(render_board(input, ansi=True))
-
-    return moves.reverse()
+    return reversed(moves)
 
 
 def get_moves(node: Node, moves: list) -> list:
@@ -49,8 +52,9 @@ def get_moves(node: Node, moves: list) -> list:
     if node.parent is None:
         return
     else:
-        moves.append(node.move)
-        get_moves(node.parent)
+        moves.append(node.move.unpack())
+        print(render_board(node.state, ansi=True))
+        get_moves(node.parent, moves)
 
 
 def expand(nodes: list, parent: Node):

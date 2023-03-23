@@ -22,7 +22,7 @@ class Node:
         self.state = state
         self.move = move
         self.move_num = move_num
-        self.heuristic = heuristic
+        self.heuristic = 0
         self.cost = self.move_num + self.heuristic
 
     def __lt__(self, other):
@@ -30,6 +30,22 @@ class Node:
 
     def __str__(self):
         return f'move: {self.move.__str__()}, cost: {self.cost}'
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        if self.state == other.state:
+            return True
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(frozenset(self.state.items()))
+
+
+
+
+
 
 
 

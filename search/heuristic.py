@@ -1,8 +1,6 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-# Heuristic function
-
 from constants import *
 
 
@@ -10,11 +8,11 @@ def heuristic(input: dict[tuple, tuple]) -> int:
     """
     The heuristic function calculates a prediction of the goal cost for a
     particular state. The heuristic function is calculated to be admissible.
-    The output is a float which represents the estimate of the remaining steps
-    from the current state to reach a goal state.
+    The output is an int which represents the estimate of the minimum remaining
+    steps from the current state for any red piece to spread on any blue piece.
     """
 
-    total = 0
+    total = []
 
     # Split pieces into red and blue
     red = []
@@ -28,19 +26,27 @@ def heuristic(input: dict[tuple, tuple]) -> int:
     for (b_r, b_q, b_k) in blue:
         costs = []
         for (r_r, r_q, r_k) in red:
-            cost_r = 3.5 - abs((r_r - b_r) - 3.5)
-            cost_q = 3.5 - abs((r_q - b_q) - 3.5)
+            r_diff = r_r - b_r
+            q_diff = r_q - b_q
+            cost_r = 3.5 - abs(abs(r_diff) - 3.5)
+            cost_q = 3.5 - abs(abs(q_diff) - 3.5)
             cost = cost_r + cost_q
 
-            if ((r_r > b_r) and (r_q < b_q)) or ((r_r < b_r) and (r_q > b_q)):
-                cost -= min(cost_r, cost_q)
+            r_dir = (r_diff > 3) or ((r_diff >= -3) and (r_diff < 0))
+            q_dir = (q_diff > 3) or ((q_diff >= -3) and (q_diff < 0))
 
-            if b_k == 6:
-                cost -= (r_k - 1)
-            else:
-                cost -= (r_k + b_k - 2)
+            diag = 0
+            # Subtract cost for (-1, 1) and (1, -1) moves.
+            if r_dir ^ q_dir:
+                diag = min(cost_r, cost_q)
+                cost -= diag
 
-            costs.append(cost)
-        total += min(costs)
+            # Subtract cost for range of red power, depending on direction
+            cost -= (min(r_k, max(diag, cost_r - diag, cost_q - diag)) - 1)
 
-    return total
+            costs.append(max(cost, 0))
+
+        # default cost = 1000 for the case that there are no red pieces left.
+        total.append(min(costs, default=1000))
+
+    return min(total, default=0)

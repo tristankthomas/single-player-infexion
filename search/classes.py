@@ -22,7 +22,7 @@ class Node:
         self.state = state
         self.move = move
         self.move_num = move_num
-        self.heuristic = 0
+        self.heuristic = heuristic
         self.cost = self.move_num + self.heuristic
 
     def __lt__(self, other):
@@ -41,11 +41,3 @@ class Node:
 
     def __hash__(self):
         return hash(frozenset(self.state.items()))
-
-
-
-
-
-
-
-

@@ -12,7 +12,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     """
     This is the entry point for your submission. The input is a dictionary
     of board cell states, where the keys are tuples of (r, q) coordinates, and
-    the values are tuples of (p, k) cell states. The output should be a list of 
+    the values are tuples of (p, k) cell states. The output should be a list of
     actions, where each action is a tuple of (r, q, dr, dq) coordinates.
 
     See the specification document for more details.
@@ -24,7 +24,6 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 
     root = Node(None, input, None, 0, heuristic(input))
 
-    spread(root.state, Move(5, 6, 0, 1))
     hq.heappush(nodes, root)
 
     # A* algorithm
@@ -37,30 +36,41 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 
         if goal_test(node):
             solution = node
-            # finding moves to goal state
+            # Find moves to goal state
             get_moves(solution, moves)
 
             break
+
+    print(render_board(input, ansi=True))
 
     return reversed(moves)
 
 
 def get_moves(node: Node, moves: list) -> list:
     """
-    Traverses through the linked list of nodes and creates list of moves taken from goal to source states
+    Traverses through the linked list of nodes and creates list of moves taken
+    from goal to source states, which will stop only when it reaches the initial
+    state.
     """
     if node.parent is None:
         return
     else:
         moves.append(node.move.unpack())
-        print(render_board(node.state, ansi=True))
+        # print(render_board(node.state, ansi=True))
         get_moves(node.parent, moves)
 
 
 def expand(nodes: list, parent: Node):
+    """
+    Expands a parent state in all 6 possible spread directions for all red
+    pieces. Each of the new states will be added to the heap priority queue
+    based on their total cost, which is the current path cost + the heuristic
+    cost.
+    """
     reds = []
     # find the red keys
-    [reds.append(key) for key in parent.state if parent.state[key][COLOUR] == RED]
+    [reds.append(key)
+     for key in parent.state if parent.state[key][COLOUR] == RED]
 
     # iterate through each red in every direction
     for red in reds:
@@ -70,12 +80,17 @@ def expand(nodes: list, parent: Node):
 
             next_move_num = parent.move_num + 1
             # create new child node and add to PQ
-            node = Node(parent, new_state, move_coords, next_move_num, heuristic(new_state))
+            node = Node(parent, new_state, move_coords, next_move_num,
+                        heuristic(new_state))
             hq.heappush(nodes, node)
 
 
 def goal_test(node: Node):
-    return not bool([key for key in node.state if node.state[key][COLOUR] == BLUE])
+    """
+    Determines if the current state is a goal state i.e. if there are no more
+    blue pieces on the board.
+    """
+    return not [key for key in node.state if node.state[key][COLOUR] == BLUE]
 
 
 def spread(input: dict[tuple, tuple], move: Move) -> dict[tuple, tuple]:
@@ -100,18 +115,20 @@ def spread(input: dict[tuple, tuple], move: Move) -> dict[tuple, tuple]:
 
     k = output[(r, q)][POWER]
 
-    # Remove current piece from state
+    # Remove current piece from state, since it disappears in a spread.
     del output[(r, q)]
 
     (cur_r, cur_q) = (r, q)
     for i in range(k):
         (cur_r, cur_q) = ((cur_r + dr) % BOARD_LEN, (cur_q + dq) % BOARD_LEN)
         if (cur_r, cur_q) in input.keys():
+            # If spreading on 6 power piece, remove piece
             if output[(cur_r, cur_q)][POWER] == MAX_POWER:
                 del output[(cur_r, cur_q)]
                 continue
             else:
-                output[(cur_r, cur_q)] = (RED, output[(cur_r, cur_q)][POWER] + 1)
+                output[(cur_r, cur_q)] = (RED,
+                                          output[(cur_r, cur_q)][POWER] + 1)
         else:
             output[(cur_r, cur_q)] = (RED, 1)
 

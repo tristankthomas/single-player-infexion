@@ -31,6 +31,7 @@ def main():
     """
     Main entry point for program.
     """
+
     # used for testing
     # f = open("..\\test.csv", "r")
     # input = parse_input(f.read())

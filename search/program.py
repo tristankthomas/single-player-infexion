@@ -1,10 +1,10 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from utils import render_board
-from constants import *
-from classes import *
 import heapq as hq
+
+from classes import *
+from constants import *
 from heuristic import heuristic
 
 
@@ -14,10 +14,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     of board cell states, where the keys are tuples of (r, q) coordinates, and
     the values are tuples of (p, k) cell states. The output should be a list of
     actions, where each action is a tuple of (r, q, dr, dq) coordinates.
-
-    See the specification document for more details.
     """
-
     nodes = []
     visited = set()
     moves = []
@@ -38,10 +35,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
             solution = node
             # Find moves to goal state
             get_moves(solution, moves)
-
             break
-
-    print(render_board(input, ansi=True))
 
     return reversed(moves)
 
@@ -49,14 +43,12 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
 def get_moves(node: Node, moves: list) -> list:
     """
     Traverses through the linked list of nodes and creates list of moves taken
-    from goal to source states, which will stop only when it reaches the initial
-    state.
+    from goal to source states.
     """
     if node.parent is None:
         return
     else:
         moves.append(node.move.unpack())
-        # print(render_board(node.state, ansi=True))
         get_moves(node.parent, moves)
 
 

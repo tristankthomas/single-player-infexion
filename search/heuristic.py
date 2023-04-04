@@ -32,8 +32,9 @@ def heuristic(input: dict[tuple, tuple]) -> int:
             cost_q = 3.5 - abs(abs(q_diff) - 3.5)
             cost = cost_r + cost_q
 
-            r_dir = (r_diff > 3) or ((r_diff >= -3) and (r_diff < 0))
-            q_dir = (q_diff > 3) or ((q_diff >= -3) and (q_diff < 0))
+            # dir = 1 if direction required is negative, else 0
+            r_dir = (r_diff < -3) or ((r_diff >= 0) and (r_diff <= 3))
+            q_dir = (q_diff < -3) or ((q_diff >= 0) and (q_diff <= 3))
 
             diag = 0
             # Subtract cost for (-1, 1) and (1, -1) moves.
@@ -44,7 +45,7 @@ def heuristic(input: dict[tuple, tuple]) -> int:
             # Subtract cost for range of red power, depending on direction
             cost -= (min(r_k, max(diag, cost_r - diag, cost_q - diag)) - 1)
 
-            costs.append(max(cost, 0))
+            costs.append(cost)
 
         # default cost = 1000 for the case that there are no red pieces left.
         total.append(min(costs, default=1000))

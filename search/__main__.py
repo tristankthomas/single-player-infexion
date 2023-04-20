@@ -2,7 +2,8 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search
+from .program import search
+from .test_creation import create_test
 
 
 def parse_input(input: str) -> dict[tuple, tuple]:
@@ -31,13 +32,13 @@ def main():
     """
     Main entry point for program.
     """
-
+    create_test()
     # used for testing
-    # f = open("..\\test.csv", "r")
-    # input = parse_input(f.read())
-    # f.close()
+    f = open("ctest.csv", "r")
+    input = parse_input(f.read())
+    f.close()
 
-    input = parse_input(stdin.read())
+    # input = parse_input(stdin.read())
     sequence: list[tuple] = search(input)
     print_sequence(sequence)
 

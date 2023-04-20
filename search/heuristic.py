@@ -1,7 +1,7 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from constants import *
+from .constants import *
 
 
 def heuristic(input: dict[tuple, tuple]) -> int:

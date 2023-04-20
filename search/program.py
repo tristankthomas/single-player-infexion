@@ -3,9 +3,9 @@
 
 import heapq as hq
 
-from classes import *
-from constants import *
-from heuristic import heuristic
+from .classes import *
+from .constants import *
+from .heuristic import heuristic
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:

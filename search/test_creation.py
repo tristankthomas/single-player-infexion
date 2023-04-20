@@ -18,7 +18,6 @@ def create_test():
             pass
         used_coordinates.add(coord)
         state = list(coord) + ['r', randint(1, 6)]
-        print(state)
         f.write(', '.join([str(x) for x in state]) + '\n')
 
     for i in range(num_blues):
@@ -26,7 +25,6 @@ def create_test():
             pass
         used_coordinates.add(coord)
         state = list(coord) + ['b', randint(1, 6)]
-        print(state)
         f.write(', '.join([str(x) for x in state]) + '\n')
 
     f.close()
